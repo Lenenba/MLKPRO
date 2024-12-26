@@ -4,6 +4,7 @@ import ProductCard from '@/Components/ProductCard.vue';
 import { Head } from '@inertiajs/vue3';
 defineProps({
     products: Object,
+    categories: Object
 })
 </script>
 
@@ -21,7 +22,7 @@ defineProps({
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="overflow-hidden">
                     <div class="p-6 text-gray-900">
-                        <ProductCard :products="products"/>
+                        <ProductCard :products="products" :categories="categories"/>
                     </div>
                 </div>
             </div>
