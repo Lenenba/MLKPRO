@@ -14,7 +14,7 @@ class ProductController extends Controller
         $products = Product::mostRecent()
             ->with('category')
             ->with('user')
-            ->simplePaginate(6);
+            ->simplePaginate(8);
         $categories = ProductCategory::all();
 
         return inertia('Product/Index', [
