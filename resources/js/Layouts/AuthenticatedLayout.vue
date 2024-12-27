@@ -1,5 +1,6 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
+import { usePage } from '@inertiajs/vue3'
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -7,7 +8,12 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 
+const page = usePage()
 const showingNavigationDropdown = ref(false);
+const flashSuccess = computed(
+    () => page.props.flash.success
+)
+
 </script>
 
 <template>
@@ -30,11 +36,8 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
-                                <NavLink  >
+                                <NavLink :href="route('product.index')" :active="route().current('product.index')">
                                     Products
-                                </NavLink>
-                                <NavLink  >
-                                    companies
                                 </NavLink>
 
                             </div>
@@ -107,11 +110,8 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink  >
+                        <ResponsiveNavLink :href="route('product.index')" :active="route().current('product.index')">
                             products
-                        </ResponsiveNavLink>
-                        <ResponsiveNavLink  >
-                            Companies
                         </ResponsiveNavLink>
                     </div>
 
@@ -144,7 +144,19 @@ const showingNavigationDropdown = ref(false);
                     <slot name="header" />
                 </div>
             </header>
-
+            <div v-if="flashSuccess"
+                class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 border rounded-md shadow-sm border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900 p-2 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"
+                    class="w-6 h-6 text-green-500 dark:text-green-300">
+                    <path fill-rule="evenodd"
+                        d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
+                        clip-rule="evenodd">
+                    </path>
+                </svg>
+                <span class="ml-3 text-sm font-medium text-green-700 dark:text-green-300">
+                    {{ flashSuccess }}
+                </span>
+            </div>
             <!-- Page Content -->
             <main>
                 <slot />
