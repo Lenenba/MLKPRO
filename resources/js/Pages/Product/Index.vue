@@ -9,7 +9,18 @@ import { ref } from 'vue';
 
 const IsOpenAddNewProduct = ref(false);
 
+// Produit sélectionné (ou nouveau produit)
+const selectedProduct = ref(null);
+
 const AddNewProduct = () => {
+    selectedProduct.value = { // Produit vide par défaut
+        name: '',
+        category_id: '',
+        stock: 0,
+        minimum_stock: 0,
+        description: '',
+        image: null,
+    };
     IsOpenAddNewProduct.value = true;
 };
 
@@ -22,13 +33,6 @@ defineProps({
     categories: Object,
 })
 
-const product = ref({
-    name: '',
-    category_id: '',
-    price: '',
-    description: '',
-    image: '',
-});
 </script>
 
 <template>
@@ -53,12 +57,12 @@ const product = ref({
                             </button>
                         </div>
                         <div class="grid sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                            <ProductCard v-for="product in products.data" :key="product.id" :product="product"/>
+                            <ProductCard v-for="product in products.data" :key="product.id" :product="product" :categories="categories"/>
                         </div>
                         <Pagination :pagination="products" />
 
                         <Modal :show="IsOpenAddNewProduct" @close="closeModal">
-                            <ProductForm :categories="categories" :product="product"/>
+                            <ProductForm :categories="categories" :product="selectedProduct"  @close="closeModal"/>
                         </Modal>
                     </div>
                 </div>

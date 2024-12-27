@@ -1,7 +1,27 @@
 <script setup>
+import Modal from '@/Components/Modal.vue';
+import ProductForm from '@/Components/Product/ProductForm.vue';
+import { ref } from 'vue';
+
+const IsOpenProductModal = ref(false);
+
+const ActionProduct = () => {
+    IsOpenProductModal.value = true;
+};
+
+const closeModal = () => {
+    IsOpenProductModal.value = false;
+};
+
 defineProps({
-    product: Object,
-});
+    products: Object,
+    categories: Object,
+})
+
+const getProductImage = (product) => {
+    if (!product.filename) return '/images/default-product.png'; // Image par défaut si aucune n'est fournie
+    return product.filename.startsWith('http') ? product.filename : `/storage/${product.filename}`;
+};
 
 const handleEdit = () => {
     // Émettre un événement pour éditer
@@ -17,8 +37,8 @@ const handleDelete = () => {
 <template>
     <div
         class="group flex flex-col h-full bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70">
-        <div class="h-36 flex justify-center items-center bg-blue-600 rounded-t-xl">
-            <img :src="product.image" alt="Product Image" class="object-cover h-full w-full rounded-t-xl" />
+        <div class="h-36 flex justify-center items-center bg-gray-400 rounded-t-xl">
+            <img :src="getProductImage(product)" alt="Product Image" class="object-cover h-full w-full rounded-t-xl" />
         </div>
         <div class="p-4 md:p-6 flex flex-col justify-between flex-1">
             <div>
@@ -47,5 +67,9 @@ const handleDelete = () => {
                 Delete
             </button>
         </div>
+
+        <Modal :show="IsOpenProductModal" @close="closeModal">
+            <ProductForm :categories="categories" :product="product"  @close="closeModal"/>
+        </Modal>
     </div>
 </template>

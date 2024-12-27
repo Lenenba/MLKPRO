@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\ProductCategory;
-use App\Http\Requests\StoreProductRequest;
+use App\Http\Requests\ProductRequest;
 
 class ProductController extends Controller
 {
@@ -23,42 +23,42 @@ class ProductController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function store(ProductRequest $request)
     {
-        // $this->authorize('create', Listing::class);
-        return inertia('Product/Create');
-    }
-
-    public function store(StoreProductRequest $request)
-    {
-        // Les données sont déjà validées à ce stade
+        // Valider les données
         $validated = $request->validated();
 
-        // Associer l'utilisateur actuel en tant que créateur du produit
+        // Vérifier et gérer le fichier téléversé (cover_photo)
+        if ($request->hasFile('image')) {
+            $filePath = $request->file('image')->store('products', 'public');
+            $validated['filename'] = $filePath;
+        }
+        // Créer le produit avec les données validées et l'utilisateur associé
         $product = $request->user()->products()->create($validated);
 
+        $product->filename = $filePath;
+        $product->save();
+
+        // Rediriger avec un message de succès
         return redirect()->back()->with('success', 'Produit créé avec succès.');
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'category_id' => 'required|exists:product_categories,id',
-            'stock' => 'required|integer|min:0',
-            'minimum_stock' => 'required|integer|min:0',
-        ]);
+        // Valider les données
+        $validated = $request->validated();
 
+        // Vérifier et gérer le fichier téléversé (image)
+        if ($request->hasFile('image')) {
+            $filePath = $request->file('image')->store('products', 'public');
+            $validated['filename'] = $filePath;
+        }
+
+        // Mettre à jour le produit avec les données validées
         $product->update($validated);
 
-        return redirect()->back()->with('success', 'Product updated successfully.');
+        // Rediriger avec un message de succès
+        return redirect()->back()->with('success', 'Produit mis à jour avec succès.');
     }
 
     public function destroy(Product $product)
