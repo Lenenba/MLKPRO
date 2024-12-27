@@ -23,12 +23,14 @@ Route::middleware('auth')->group(function () {
 
 });
 
+Route::resource('customer', CustomerController::class)
+    ->middleware('auth')
+    ->only('index', 'store', 'update');
+
 Route::resource('product', ProductController::class)
     ->middleware('auth')
     ->only('destroy', 'store', 'update', 'index');
 
-Route::resource('customer', CustomerController::class)
-    ->middleware('auth')
-    ->only('index');
+
 
 require __DIR__.'/auth.php';

@@ -26,8 +26,10 @@ class CustomerFactory extends Factory
             'city' => $this->faker->city(),
             'state' => $this->faker->state(),
             'zip' => $this->faker->postcode(),
-            'compagny_name' => $this->faker->company(),
+            'company_name' => $this->faker->company(),
+            'description' => $this->faker->company(),
             'logo' => $this->generateFakeCompanyLogo(),
+            'header_image' => $this->faker->imageUrl(1500, 500),
         ];
     }
 

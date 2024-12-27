@@ -24,7 +24,7 @@ class Customer extends Model
         'city',
         'state',
         'zip',
-        'compagny_name',
+        'company_name',
     ];
 
     /**

@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Utils\FileHandler;
 use App\Models\ProductCategory;
 use App\Http\Requests\ProductRequest;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductController extends Controller
@@ -31,7 +31,7 @@ class ProductController extends Controller
     public function store(ProductRequest $request)
     {
         $validated = $request->validated();
-        $validated['filename'] = $this->handleImageUpload($request);
+        $validated['filename'] = FileHandler::handleImageUpload($request, 'filename', 'products/product.jpg');
 
         $product = $request->user()->products()->create($validated);
 
@@ -49,8 +49,7 @@ class ProductController extends Controller
         $this->authorize('update', $product);
 
         $validated = $request->validated();
-        $validated['filename'] = $this->handleImageUpload($request, $product->filename);
-
+        $validated['filename'] = FileHandler::handleImageUpload($request, 'filename', 'products/product.jpg', $product->filename);
         $product->filename = $validated['filename'];
         $product->update($validated);
 
@@ -64,44 +63,9 @@ class ProductController extends Controller
     {
         $this->authorize('delete', $product);
 
-        $this->deleteFile($product->filename);
+        FileHandler::deleteFile($product->filename, 'products/product.jpg');
         $product->delete();
 
         return redirect()->route('product.index')->with('success', 'Product deleted successfully.');
-    }
-
-    /**
-     * Handle image upload or assign default image if none provided.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param string|null $oldFilename
-     * @return string
-     */
-    private function handleImageUpload($request, ?string $oldFilename = null): string
-    {
-        if ($request->hasFile('image')) {
-            // Delete old file if uploading a new one
-            $this->deleteFile($oldFilename);
-            return $request->file('image')->store('products', 'public');
-        }
-
-        // Return existing filename or default image
-        return $oldFilename ?? 'products/product.jpg';
-    }
-
-    /**
-     * Delete a file if it exists, but do not delete the default image.
-     *
-     * @param string|null $filePath
-     * @return void
-     */
-    private function deleteFile(?string $filePath): void
-    {
-        // Define the default image path as a constant or use a configuration
-        $defaultImagePath = 'products/product.jpg';
-
-        if ($filePath && $filePath !== $defaultImagePath && Storage::disk('public')->exists($filePath)) {
-            Storage::disk('public')->delete($filePath);
-        }
     }
 }
