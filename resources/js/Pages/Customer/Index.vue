@@ -53,9 +53,9 @@ const handleCustomerDetails = (customerId) => {
             </h2>
         </template>
 
-        <div class="flex flex-row gap-6 max-w-6xl mx-auto pt-6">
+        <div class="flex flex-row gap7 max-w-7xl mx-auto pt-6">
             <!-- Sidebar Box -->
-            <div class="w-full md:w-2/5">
+            <div class="w-full md:w-2/6">
 
                 <div class="flex flex-col space-y-4">
                     <!-- Header -->

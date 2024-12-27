@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Utils\FileHandler;
+use Illuminate\Http\Request;
 use App\Models\ProductCategory;
 use App\Http\Requests\ProductRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -15,12 +16,18 @@ class ProductController extends Controller
     /**
      * Display a listing of products with pagination and categories.
      */
-    public function index()
+    public function index(?Request $request)
     {
+        $filters = $request->only([
+            'category_id', 'name', 'stock'
+        ]);
         return inertia('Product/Index', [
+            'filters' => $filters,
             'products' => Product::mostRecent()
+                ->filter($filters)
                 ->with(['category', 'user'])
-                ->simplePaginate(4),
+                ->simplePaginate(4)
+                ->withQueryString(),
             'categories' => ProductCategory::all(),
         ]);
     }

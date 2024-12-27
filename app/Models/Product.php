@@ -100,4 +100,49 @@ class Product extends Model
 
         return 'In Stock';
     }
+
+    /**
+     * Scope a query to filter products based on given criteria.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query->when(
+            $filters['category_id'] ?? null,
+            fn($query, $categoryId) => $query->where('category_id', $categoryId)
+        )->when(
+            $filters['name'] ?? null,
+            fn($query, $name) => $query->where('name', 'like', '%' . $name . '%')
+        )->when(
+            $filters['stock'] ?? null,
+            fn($query, $stockRange) => $this->applyStockFilter($query, $stockRange)
+        );
+    }
+
+    /**
+     * Apply stock range filter.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $stockRange
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    private function applyStockFilter(Builder $query, string $stockRange): Builder
+    {
+        if ($stockRange === '0-10') {
+            return $query->whereBetween('stock', [0, 10]);
+        }
+
+        if ($stockRange === '10-100') {
+            return $query->whereBetween('stock', [10, 100]);
+        }
+
+        if ($stockRange === '>100') {
+            return $query->where('stock', '>', 100);
+        }
+
+        return $query;
+    }
 }

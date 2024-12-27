@@ -2,7 +2,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ProductCard from '@/Components/Product/ProductCard.vue';
 import ProductForm from '@/Components/Product/ProductForm.vue';
-import Search from '@/Components/Search.vue';
+import filters from '@/Components/Search.vue';
 import Pagination from '@/Components/UI/Pagination.vue';
 import { Head } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
@@ -32,6 +32,7 @@ const closeModal = () => {
 defineProps({
     products: Object,
     categories: Object,
+    filters: Object,
 })
 
 </script>
@@ -50,7 +51,7 @@ defineProps({
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
                 <div class="mb-6 w-full" >
-                    <Search @NewProduct="AddNewProduct" />
+                    <filters @NewProduct="AddNewProduct" :filters="filters" :categories="categories" />
                 </div>
                 <div class="overflow-hidden">
                     <div class="p-6 text-gray-900">
