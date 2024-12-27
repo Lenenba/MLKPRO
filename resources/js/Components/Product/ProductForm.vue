@@ -8,60 +8,56 @@ import TextAreaInput from '@/Components/TextAreaInput.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
 import { useForm } from '@inertiajs/vue3';
-import { defineEmits  } from 'vue';
+import { defineEmits } from 'vue';
 
 const emit = defineEmits(['close']);
 
 const props = defineProps({
-    categories: Object,
-    product: Object
-});
-// Initialisation du formulaire
-const form = useForm({
-    name: props.product?.name || '',
-    category_id:  props.product?.category_id || '',
-    stock:  props.product?.stock || 0,
-    minimum_stock:  props.product?.minimum_stock || 0,
-    description:  props.product?.description || '',
-    image: null, // Ajout du fichier pour le téléchargement
+    categories: Array,
+    product: Object,
 });
 
-// Fonction pour soumettre le formulaire
+// Initialize the form
+const form = useForm({
+    name: props.product?.name || '',
+    category_id: props.product?.category_id || '',
+    stock: props.product?.stock || 0,
+    minimum_stock: props.product?.minimum_stock || 0,
+    description: props.product?.description || '',
+    image: props.product?.filename || '',
+});
+
+// Function to handle form submission
 const submit = () => {
-    if (props.product.id !== undefined) {
-        form.put(route('product.update', props.product.id), {
-            onSuccess: () => {
-                console.log('Product updated successfully!');
-            },
-            onError: (errors) => {
-                console.error('Validation errors:', errors);
-            },
-        });
-    } else {
-        form.post(route('product.store'), {
-            onSuccess: () => {
-                console.log('Product saved successfully!');
-            },
-            onError: (errors) => {
-                console.error('Validation errors:', errors);
-            },
-        });
-    }
-    emit('close');
+    console.log(form.data());
+    const routeName = props.product?.id ? 'product.update' : 'product.store';
+    const routeParams = props.product?.id ? props.product.id : undefined;
+
+    form[props.product?.id ? 'put' : 'post'](route(routeName, routeParams), {
+        onSuccess: () => {
+            console.log('Product saved successfully!');
+            emit('close');
+        },
+        onError: (errors) => {
+            console.error('Validation errors:', errors);
+        },
+    });
 };
 </script>
 
 <template>
   <div class="flex flex-col items-center bg-gray-100 sm:justify-center sm:pt-0">
+    <!-- Logo -->
     <div class="mt-6">
       <Link href="/">
         <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
       </Link>
     </div>
 
+    <!-- Form Container -->
     <div class="mt-6 w-full px-6 py-4 sm:max-w-md">
       <form @submit.prevent="submit">
-        <!-- Nom du produit -->
+        <!-- Product Name -->
         <div>
           <InputLabel for="name" value="Product Name" />
           <TextInput
@@ -74,7 +70,7 @@ const submit = () => {
           <InputError class="mt-2" :message="form.errors.name" />
         </div>
 
-        <!-- Catégorie -->
+        <!-- Category -->
         <div class="mt-4">
           <InputLabel for="category_id" value="Category" />
           <SelectInput
@@ -108,7 +104,7 @@ const submit = () => {
           <InputError class="mt-2" :message="form.errors.stock" />
         </div>
 
-        <!-- Stock Minimum -->
+        <!-- Minimum Stock -->
         <div class="mt-4">
           <InputLabel for="minimum_stock" value="Minimum Stock" />
           <TextInput
@@ -133,9 +129,9 @@ const submit = () => {
           <InputError class="mt-2" :message="form.errors.description" />
         </div>
 
-        <!-- Photo de couverture -->
+        <!-- Images -->
         <div class="mt-4">
-          <InputLabel for="image" value="Cover Photo" />
+          <InputLabel for="image" value="Images" />
           <div class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
             <div class="text-center">
               <svg
@@ -173,10 +169,10 @@ const submit = () => {
           <InputError class="mt-2" :message="form.errors.image" />
         </div>
 
-        <!-- Bouton de soumission -->
+        <!-- Submit Button -->
         <div class="mt-4 flex items-center justify-end">
           <PrimaryButton class="ml-4" :disabled="form.processing">
-            Save
+            {{ props.product?.id ? 'Update' : 'Save' }}
           </PrimaryButton>
         </div>
       </form>

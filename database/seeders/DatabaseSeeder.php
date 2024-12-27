@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\customer;
 use App\Models\Product;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\ProductCategory;
@@ -19,6 +20,10 @@ class DatabaseSeeder extends Seeder
 
         Product::factory(20)
             ->recycle(ProductCategory::factory(9)->create())
+            ->recycle(User::factory(3)->create())
+            ->create();
+
+        customer::factory(10)
             ->recycle(User::factory(3)->create())
             ->create();
     }
