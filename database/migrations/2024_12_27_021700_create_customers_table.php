@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('zip')->nullable();
             $table->string('compagny_name')->nullable();
+            $table->string('logo')->nullable(); // Ajout de la colonne image
             $table->timestamps();
         });
     }

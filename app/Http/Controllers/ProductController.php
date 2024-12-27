@@ -20,7 +20,7 @@ class ProductController extends Controller
         return inertia('Product/Index', [
             'products' => Product::mostRecent()
                 ->with(['category', 'user'])
-                ->simplePaginate(8),
+                ->simplePaginate(4),
             'categories' => ProductCategory::all(),
         ]);
     }

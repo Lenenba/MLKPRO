@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -72,5 +73,16 @@ class Customer extends Model
         ]);
 
         return implode(', ', $addressParts);
+    }
+
+    /**
+     * Scope a query to order products by the most recent.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeMostRecent(Builder $query): Builder
+    {
+        return $query->orderByDesc('created_at');
     }
 }

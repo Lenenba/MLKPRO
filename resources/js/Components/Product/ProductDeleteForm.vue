@@ -3,8 +3,7 @@ import DangerButton from '@/Components/DangerButton.vue';
 import InputError from '@/Components/InputError.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
-
+import { defineEmits } from 'vue';
 // Emit pour communiquer avec le parent
 const emit = defineEmits(['close']);
 

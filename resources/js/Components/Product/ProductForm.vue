@@ -29,7 +29,6 @@ const form = useForm({
 
 // Function to handle form submission
 const submit = () => {
-    console.log(form.data());
     const routeName = props.product?.id ? 'product.update' : 'product.store';
     const routeParams = props.product?.id ? props.product.id : undefined;
 
