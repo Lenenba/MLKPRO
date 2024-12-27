@@ -1,20 +1,27 @@
 <script setup>
 import Modal from '@/Components/Modal.vue';
 import ProductForm from '@/Components/Product/ProductForm.vue';
+import ProductDeleteForm from '@/Components/Product/ProductDeleteForm.vue';
 import { ref } from 'vue';
 
 const IsOpenProductModal = ref(false);
+const IsOpenProductDeleteModal = ref(false);
 
-const ActionProduct = () => {
+const handleEdit = () => {
     IsOpenProductModal.value = true;
+};
+
+const handleDelete = () => {
+    IsOpenProductDeleteModal.value = true;
 };
 
 const closeModal = () => {
     IsOpenProductModal.value = false;
+    IsOpenProductDeleteModal.value = false;
 };
 
 defineProps({
-    products: Object,
+    product: Object,
     categories: Object,
 })
 
@@ -23,15 +30,7 @@ const getProductImage = (product) => {
     return product.filename.startsWith('http') ? product.filename : `/storage/${product.filename}`;
 };
 
-const handleEdit = () => {
-    // Émettre un événement pour éditer
-    emit('edit-product', product);
-};
 
-const handleDelete = () => {
-    // Émettre un événement pour supprimer
-    emit('delete-product', product.id);
-};
 </script>
 
 <template>
@@ -71,5 +70,10 @@ const handleDelete = () => {
         <Modal :show="IsOpenProductModal" @close="closeModal">
             <ProductForm :categories="categories" :product="product"  @close="closeModal"/>
         </Modal>
+
+        <Modal :show="IsOpenProductDeleteModal" @close="closeModal">
+            <ProductDeleteForm :product="product"  @close="closeModal"/>
+        </Modal>
+
     </div>
 </template>

@@ -28,14 +28,25 @@ const form = useForm({
 
 // Fonction pour soumettre le formulaire
 const submit = () => {
-    form.post(route('product.store'), {
-        onSuccess: () => {
-            console.log('Product saved successfully!');
-        },
-        onError: (errors) => {
-            console.error('Validation errors:', errors);
-        },
-    });
+    if (props.product.id !== undefined) {
+        form.put(route('product.update', props.product.id), {
+            onSuccess: () => {
+                console.log('Product updated successfully!');
+            },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+            },
+        });
+    } else {
+        form.post(route('product.store'), {
+            onSuccess: () => {
+                console.log('Product saved successfully!');
+            },
+            onError: (errors) => {
+                console.error('Validation errors:', errors);
+            },
+        });
+    }
     emit('close');
 };
 </script>
