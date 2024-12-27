@@ -23,7 +23,9 @@ Route::middleware('auth')->group(function () {
 
 });
 
-Route::resource('product', ProductController::class);
+Route::resource('product', ProductController::class)
+    ->middleware('auth')
+    ->only('destroy', 'store', 'update', 'index');
 
 
 require __DIR__.'/auth.php';
