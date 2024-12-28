@@ -61,15 +61,34 @@ class Work extends Model
     }
 
     /**
-     * Scope a query to order products by the most recent.
+     * Scope a query to only include customers of a given user.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $userId
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeByCustomer($query, $customerId)
+    public function scopeByUser($query, int $userId)
     {
-        return $query->where('customer_id', $customerId);
+        return $query->where('user_id', $userId);
     }
+
+    /**
+     * Scope a query to filter by one or more customer IDs.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array|int $customerIds
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByCustomer($query, $customerIds)
+    {
+        // Vérifier si un seul ID est passé et le convertir en tableau
+        if (!is_array($customerIds)) {
+            $customerIds = [$customerIds];
+        }
+
+        return $query->whereIn('customer_id', $customerIds);
+    }
+
 
     /**
      * Scope a query to order products by the most recent.

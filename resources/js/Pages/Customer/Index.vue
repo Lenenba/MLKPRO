@@ -14,6 +14,10 @@ const props = defineProps({
     customers: {
         type: Object,
         required: true
+    },
+    works: {
+        type: Object,
+        required: true
     }
 })
 

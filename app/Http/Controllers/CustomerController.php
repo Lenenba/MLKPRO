@@ -32,9 +32,20 @@ class CustomerController extends Controller
             ->byUser($userId)
             ->simplePaginate(3);
 
+        // Collect customer IDs for the current user
+        $customerIds = $customers->pluck('id')->toArray();
+
+        // Fetch works for the retrieved customers
+        $works = Work::with('products')
+            ->byCustomer($customerIds)
+            ->byUser($userId)
+            ->latest()
+            ->paginate(3);
+
         // Pass data to Inertia view
         return Inertia::render('Customer/Index', [
             'customers' => $customers,
+            'works' => $works,
         ]);
     }
 
