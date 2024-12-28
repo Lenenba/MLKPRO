@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Product extends Model
 {
@@ -40,7 +42,7 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(ProductCategory::class, 'category_id');
     }
@@ -50,9 +52,19 @@ class Product extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the works that use the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function works(): BelongsToMany
+    {
+        return $this->belongsToMany(Work::class, 'product_work')->withPivot('quantity_used', 'unit');
     }
 
     /**
@@ -122,6 +134,11 @@ class Product extends Model
         );
     }
 
+    public function scopeInStock($query)
+    {
+        return $query->where('stock', '>', 0);
+    }
+
     /**
      * Apply stock range filter.
      *
@@ -145,4 +162,15 @@ class Product extends Model
 
         return $query;
     }
+
+    // // Helpers
+    // public function getFormattedPrice(): string
+    // {
+    //     return '$' . number_format($this->price, 2);
+    // }
+
+    // public function isAvailable(): bool
+    // {
+    //     return $this->stock_quantity > 0;
+    // }
 }

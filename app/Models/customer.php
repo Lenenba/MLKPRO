@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Customer extends Model
 {
@@ -47,6 +48,13 @@ class Customer extends Model
     }
 
     /**
+     * Get the works for the customer.
+     */
+    public function works(): HasMany
+    {
+        return $this->hasMany(Work::class);
+    }
+    /**
      * Scope a query to only include customers of a given user.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
@@ -84,5 +92,15 @@ class Customer extends Model
     public function scopeMostRecent(Builder $query): Builder
     {
         return $query->orderByDesc('created_at');
+    }
+
+    /**
+     * Get the total number of works for the customer.
+     *
+     * @return int
+     */
+    public function getTotalWorks(): int
+    {
+        return $this->works()->count();
     }
 }
