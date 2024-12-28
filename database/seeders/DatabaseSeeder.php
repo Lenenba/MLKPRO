@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\Customer;
-use App\Models\Product;
-use App\Models\ProductCategory;
 use App\Models\User;
 use App\Models\Work;
-use App\Models\WorkerRating;
+use App\Models\Product;
+use App\Models\Customer;
 use App\Models\ProductWork;
+use App\Models\WorkerRating;
+use App\Models\ProductCategory;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create users
-        $users = User::factory(10)->create();
+        $users = User::factory(3)->create();
 
         // Create product categories
-        $categories = ProductCategory::factory(9)->create();
+        $categories = ProductCategory::factory(5)->create();
 
         // Create products and associate with categories and users
         Product::factory(20)
@@ -36,7 +36,7 @@ class DatabaseSeeder extends Seeder
             ->create();
 
         // Create works and associate with users and customers
-        $works = Work::factory(15)
+        $works = Work::factory(50)
             ->recycle($users)
             ->recycle(Customer::all())
             ->create();

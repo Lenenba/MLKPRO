@@ -38,7 +38,7 @@ class Work extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'product_work')->withPivot('quantity_used', 'unit');
+        return $this->belongsToMany(Product::class, 'product_works')->withPivot('quantity_used', 'unit');
     }
 
     /**
@@ -69,6 +69,17 @@ class Work extends Model
     public function scopeByCustomer($query, $customerId)
     {
         return $query->where('customer_id', $customerId);
+    }
+
+    /**
+     * Scope a query to order products by the most recent.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeMostRecent(Builder $query): Builder
+    {
+        return $query->orderByDesc('created_at');
     }
 
     /**

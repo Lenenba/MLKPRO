@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Work;
 use Inertia\Inertia;
 use App\Models\Customer;
 use App\Utils\FileHandler;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CustomerRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -18,13 +21,20 @@ class CustomerController extends Controller
      */
     public function index()
     {
+
+        $userId = Auth::user()->id;
+
         // Fetch customers with pagination
         $customers = Customer::mostRecent()
+            ->with(['works' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->with('products');
+            }])
+            ->byUser($userId)
             ->simplePaginate(3);
 
         // Pass data to Inertia view
         return Inertia::render('Customer/Index', [
-            'customers' => $customers
+            'customers' => $customers,
         ]);
     }
 
@@ -81,5 +91,4 @@ class CustomerController extends Controller
 
         return redirect()->route('customer.index')->with('success', 'customer deleted successfully.');
     }
-
 }

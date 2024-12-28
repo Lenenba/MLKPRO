@@ -76,7 +76,7 @@ const handleCustomerDetails = (customerId) => {
             </div>
 
             <!-- Customer Details -->
-            <BoxDetails v-if="selectedCustomer" :customer="selectedCustomer" />
+            <BoxDetails v-if="selectedCustomer" :customer="selectedCustomer"/>
         </div>
         <Modal :show="IsOpenAddNewCustomer" @close="closeModal">
             <CustomerForm :customer="selectedCustomer" @close="closeModal" />
