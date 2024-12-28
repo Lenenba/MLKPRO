@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
-use App\Models\Product;
-use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])
@@ -23,9 +23,14 @@ Route::middleware('auth')->group(function () {
 
 });
 
+Route::resource('customer', CustomerController::class)
+    ->middleware('auth')
+    ->only('index', 'store', 'update');
+
 Route::resource('product', ProductController::class)
     ->middleware('auth')
     ->only('destroy', 'store', 'update', 'index');
+
 
 
 require __DIR__.'/auth.php';

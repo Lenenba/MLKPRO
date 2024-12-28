@@ -2,10 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\Customer;
 use App\Models\Product;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use App\Models\ProductCategory;
 use App\Models\User;
+use App\Models\Work;
+use App\Models\WorkerRating;
+use App\Models\ProductWork;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -15,11 +18,39 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create users
+        $users = User::factory(10)->create();
 
+        // Create product categories
+        $categories = ProductCategory::factory(9)->create();
+
+        // Create products and associate with categories and users
         Product::factory(20)
-            ->recycle(ProductCategory::factory(9)->create())
-            ->recycle(User::factory(3)->create())
+            ->recycle($categories)
+            ->recycle($users)
+            ->create();
+
+        // Create customers and associate with users
+        Customer::factory(10)
+            ->recycle($users)
+            ->create();
+
+        // Create works and associate with users and customers
+        $works = Work::factory(15)
+            ->recycle($users)
+            ->recycle(Customer::all())
+            ->create();
+
+        // Create product usage for works
+        ProductWork::factory(30)
+            ->recycle($works)
+            ->recycle(Product::all())
+            ->create();
+
+        // Create worker ratings for works
+        WorkerRating::factory(10)
+            ->recycle($works)
+            ->recycle($users)
             ->create();
     }
 }

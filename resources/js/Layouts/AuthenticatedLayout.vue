@@ -39,6 +39,9 @@ const flashSuccess = computed(
                                 <NavLink :href="route('product.index')" :active="route().current('product.index')">
                                     Products
                                 </NavLink>
+                                <NavLink :href="route('customer.index')" :active="route().current('customer.index')">
+                                    Customers
+                                </NavLink>
 
                             </div>
                         </div>
@@ -112,6 +115,9 @@ const flashSuccess = computed(
                         </ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('product.index')" :active="route().current('product.index')">
                             products
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('customer.index')" :active="route().current('customer.index')">
+                            customers
                         </ResponsiveNavLink>
                     </div>
 

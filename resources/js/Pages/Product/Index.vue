@@ -2,7 +2,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import ProductCard from '@/Components/Product/ProductCard.vue';
 import ProductForm from '@/Components/Product/ProductForm.vue';
-import Pagination from '@/Components/UI/Pagination.vue'
+import filters from '@/Components/Search.vue';
+import Pagination from '@/Components/UI/Pagination.vue';
 import { Head } from '@inertiajs/vue3';
 import Modal from '@/Components/Modal.vue';
 import { ref } from 'vue';
@@ -31,6 +32,7 @@ const closeModal = () => {
 defineProps({
     products: Object,
     categories: Object,
+    filters: Object,
 })
 
 </script>
@@ -48,14 +50,11 @@ defineProps({
 
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+                <div class="mb-6 w-full" >
+                    <filters @NewProduct="AddNewProduct" :filters="filters" :categories="categories" />
+                </div>
                 <div class="overflow-hidden">
                     <div class="p-6 text-gray-900">
-                        <div class="flex justify-end mb-6">
-                            <button @click="AddNewProduct"
-                                class="py-2 px-4 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-600">
-                                Add New Product
-                            </button>
-                        </div>
                         <div class="grid sm:grid-cols-3 lg:grid-cols-4 gap-6">
                             <ProductCard v-for="product in products.data" :key="product.id" :product="product" :categories="categories"/>
                         </div>
