@@ -1,49 +1,51 @@
 <script setup>
-import { ref } from 'vue';
+import { Link } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import Box from '@/Components/Customer/Box.vue';
+import Box from '@/Components/Customer/Box2.vue';
 import Pagination from '@/Components/UI/Pagination.vue';
-import BoxDetails from '@/Components/Customer/BoxDetails.vue';
 import { Head } from '@inertiajs/vue3';
-import CustomerForm from '@/Components/Customer/CustomerForm.vue';
-import Modal from '@/Components/Modal.vue';
-
-const IsOpenAddNewCustomer = ref(false);
+import { useForm } from '@inertiajs/vue3';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
     customers: {
         type: Object,
         required: true
     },
-    works: {
+    filters: {
         type: Object,
         required: true
     }
 })
 
-// Track the selected customer details
-const selectedCustomer = ref(null);
+const filterForm = useForm({
+    company_name: props.filters.company_name ?? "",
+});
 
-const NewCustomer = () => {
-    selectedCustomer.value = { // Produit vide par défaut
-        name: '',
-        description: '',
-    };
-    IsOpenAddNewCustomer.value = true;
-};
-
-const closeModal = () => {
-    IsOpenAddNewCustomer.value = false;
-};
-
-const handleCustomerDetails = (customerId) => {
-    const customer = props.customers.data.find((c) => c.id === customerId);
-    if (customer) {
-        selectedCustomer.value = customer;
-    } else {
-        console.error(`Customer with ID ${customerId} not found.`);
+// Fonction de filtrage avec un délai pour éviter des appels excessifs
+let filterTimeout;
+const autoFilter = () => {
+    if (filterTimeout) {
+        clearTimeout(filterTimeout);
     }
+    filterTimeout = setTimeout(() => {
+        filterForm.get(route('customer.index'), {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    }, 300); // Délai de 300ms pour éviter les appels excessifs
 };
+
+const clear = () => {
+    filterForm.company_name = null
+    autoFilter()
+
+};
+
+
+
 </script>
 
 <template>
@@ -57,33 +59,46 @@ const handleCustomerDetails = (customerId) => {
             </h2>
         </template>
 
-        <div class="flex flex-row gap7 max-w-7xl mx-auto pt-6">
-            <!-- Sidebar Box -->
-            <div class="w-full md:w-2/6">
 
-                <div class="flex flex-col space-y-4">
+        <div class="py-12 max-w-7xl mx-auto">
+            <form @submit.prevent="autoFilter">
+                <div class="p-6 bg-white border border-gray-200 rounded-lg mx-auto">
                     <!-- Header -->
-                    <div class="flex flex-col md:flex-row px-8 w-full">
-                        <button @click="NewCustomer"
-                            class="flex items-center gap-2 px-6 py-2 text-sm  font-medium  text-white bg-gray-800 rounded-lg hover:bg-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
-                                stroke="currentColor" class="h-4 w-4">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                            Add New Customer
-                        </button>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Customer Search</h2>
                     </div>
-                    <Box v-for="customer in customers.data" :key="customer.id" :customer="customer"
-                        @CustomerDetails="handleCustomerDetails" />
-                    <Pagination :pagination="customers" />
-                </div>
-            </div>
 
-            <!-- Customer Details -->
-            <BoxDetails v-if="selectedCustomer" :customer="selectedCustomer"/>
+                    <!-- Filters -->
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                        <div class="col-span-3">
+                            <InputLabel for="company_name" value="Company name" />
+                            <TextInput id="company_name" type="text" class="mt-1 block w-full" v-model="filterForm.company_name"
+                                @input="filterForm.company_name.length > 3 ? autoFilter() : null" />
+                            <InputError class="mt-2" :message="filterForm.errors.company_name" />
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-between mt-6">
+                        <div class="flex gap-4">
+                            <button type="button" @click="clear"
+                                class="py-2 px-6 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-600">
+                                Clear
+                            </button>
+                        </div>
+                        <Link :href="route('customer.create')">
+                            <button type="button"
+                                class="py-2 px-6 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-600">
+                                Add New Customer
+                            </button>
+                        </Link>
+                    </div>
+                </div>
+            </form>
+            <div class="flex flex-row gap7 pt-6">
+                <Box v-for="customer in customers.data" :key="customer.id" :customer="customer"/>
+            </div>
+            <Pagination :pagination="customers" />
         </div>
-        <Modal :show="IsOpenAddNewCustomer" @close="closeModal">
-            <CustomerForm :customer="selectedCustomer" @close="closeModal" />
-        </Modal>
     </AuthenticatedLayout>
 </template>

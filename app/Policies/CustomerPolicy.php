@@ -23,4 +23,12 @@ class CustomerPolicy
     {
         return $user->id === $customer->user_id;
     }
+
+        /**
+     * Determine whether the user can delete the model.
+     */
+    public function view (User $user, Customer $customer): bool
+    {
+        return true;
+    }
 }

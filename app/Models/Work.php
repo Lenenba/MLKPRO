@@ -15,7 +15,7 @@ class Work extends Model
     use HasFactory;
 
 
-    protected $fillable = ['user_id', 'company_id', 'description', 'work_date', 'time_spent', 'is_completed', 'cost', 'location'];
+    protected $fillable = ['user_id', 'company_id', 'description', 'type', 'work_date', 'time_spent', 'is_completed', 'cost', 'location'];
 
     /**
      * Get the user that owns the work.
@@ -130,5 +130,26 @@ class Work extends Model
     public function getFormattedDate(): string
     {
         return $this->work_date->format('d M Y, H:i');
+    }
+
+    /**
+     * Scope a query to filter products based on given criteria.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query->when(
+            $filters['name'] ?? null,
+            fn($query, $name) => $query->where('type', 'like', '%' . $name . '%')
+        )->when(
+            $filters['status'] ?? null,
+            fn($query, $status) => $query->where('is_completed', $status  )
+        )->when(
+            $filters['month'] ?? null,
+            fn($query, $month) => $query->whereMonth('work_date', $month))
+        ;
     }
 }

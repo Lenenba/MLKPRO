@@ -2,11 +2,11 @@
 
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\WorkController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
-
 
 Route::get('/', [AuthenticatedSessionController::class, 'create'])
     ->middleware('guest')
@@ -25,12 +25,18 @@ Route::middleware('auth')->group(function () {
 
 Route::resource('customer', CustomerController::class)
     ->middleware('auth')
-    ->only('index', 'store', 'update');
+    ->only('index', 'store', 'update', 'create', 'show');
+
+Route::resource('work', WorkController::class)
+    ->middleware('auth')
+    ->only('index', 'show', 'store');
+
+Route::get('/work/create/{customerId}', [WorkController::class, 'create'])
+    ->middleware('auth')
+    ->name('work.create');
 
 Route::resource('product', ProductController::class)
     ->middleware('auth')
     ->only('destroy', 'store', 'update', 'index');
-
-
 
 require __DIR__.'/auth.php';

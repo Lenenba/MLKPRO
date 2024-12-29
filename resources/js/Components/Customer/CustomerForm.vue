@@ -50,13 +50,6 @@ const submit = () => {
 
 <template>
     <div class="flex flex-col items-center bg-gray-100 sm:justify-center sm:pt-0">
-        <!-- Logo -->
-        <div class="mt-6">
-            <Link href="/">
-            <ApplicationLogo class="h-20 w-20 fill-current text-gray-500" />
-            </Link>
-        </div>
-
         <!-- Form Container -->
         <div class="mt-6 w-full px-6 py-4 sm:max-w-md">
             <form @submit.prevent="submit">
@@ -69,8 +62,8 @@ const submit = () => {
                     </div>
                     <div class="flex-1">
                         <InputLabel for="company_name" value="Company Name" />
-                        <TextInput id="company_name" type="text" class="mt-1 block w-full" v-model="form.company_name"
-                         />
+                        <TextInput id="company_name" type="text" class="mt-1 block w-full"
+                            v-model="form.company_name" />
                         <InputError class="mt-2" :message="form.errors.company_name" />
                     </div>
                 </div>
@@ -136,9 +129,15 @@ const submit = () => {
                 </div>
 
                 <!-- Submit Button -->
-                <div class="mt-4 flex items-center justify-end">
+                <div class="mt-8 flex items-center justify-end">
+                    <Link :href="route('customer.index')">
+                    <button type="button"
+                        class="py-2 px-6 text-sm font-medium text-gray-800 bg-white rounded-lg hover:bg-gray-600">
+                        Cancel
+                    </button>
+                    </Link>
                     <PrimaryButton class="ml-4" :disabled="form.processing">
-                        {{ props.customer?.id ? 'Update' : 'Save' }}
+                        {{ props.customer?.id ? 'Update customer' : 'Save customer' }}
                     </PrimaryButton>
                 </div>
             </form>

@@ -19,7 +19,6 @@ class FileHandler
     {
         if ($request->hasFile($fieldName)) {
             // Delete old file if uploading a new one
-            self::deleteFile($oldFilename);
             return $request->file($fieldName)->store('customers', 'public');
         }
 

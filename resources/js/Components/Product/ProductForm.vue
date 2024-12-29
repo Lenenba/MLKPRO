@@ -7,8 +7,7 @@ import SelectInput from '@/Components/SelectInput.vue';
 import TextAreaInput from '@/Components/TextAreaInput.vue';
 import ImageInput from '../ImageInput.vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
-import { Link } from '@inertiajs/vue3';
-import { useForm } from '@inertiajs/vue3';
+import { Link,useForm } from '@inertiajs/vue3';
 import { defineEmits } from 'vue';
 
 const emit = defineEmits(['close']);
@@ -30,7 +29,7 @@ const form = useForm({
 
 // Function to handle form submission
 const submit = () => {
-    form.errors = {};
+
     const routeName = props.product?.id ? 'product.update' : 'product.store';
     const routeParams = props.product?.id ? props.product.id : undefined;
 
