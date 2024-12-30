@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     // Product-Work Association
     Route::post('work/product/store', [ProductWorkController::class, 'store'])
         ->name('work.product.store');
+
+    Route::delete('work/{work}/product/{product}/detach', [ProductWorkController::class, 'destroy'])
+        ->name('work.product.detach');
 });
 
 // Authentication Routes

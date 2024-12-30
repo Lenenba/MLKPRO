@@ -82,9 +82,11 @@ class WorkController extends Controller
             'name',
             'stock'
         ]);
+        $workProducts = $work->products ?? [];
+
         $products = Product::mostRecent()
         ->filter($filters)
-        ->with(['category'])
+        ->with(['category','works'])
         ->simplePaginate(4)
         ->withQueryString();
         $categories = ProductCategory::all();
@@ -95,6 +97,7 @@ class WorkController extends Controller
             'work' => $work,
             'customer' => $customer,
             'filters' => $filters,
+            'workProducts' => $workProducts,
             'products' => $products,
             'categories' => $categories,
         ]);

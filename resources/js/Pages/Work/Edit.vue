@@ -1,17 +1,22 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import CustomerHeader from '@/Components/CustomerHeader.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, watch } from 'vue';
-import CustomerHeader from '@/Components/CustomerHeader.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import TextInput from '@/Components/TextInput.vue';
+import Modal from '@/Components/Modal.vue';
 
+const IsOpenProductDeleteModal = ref(false);
 
-const IsOpenCustomerDeleteModal = ref(false);
+const handleDelete = (product) => {
+    Deleteform.product = product;
+    IsOpenProductDeleteModal.value = true;
+};
 
-const handleDelete = () => {
-    IsOpenCustomerDeleteModal.value = true;
+const closeModal = () => {
+    IsOpenProductDeleteModal.value = false;
 };
 
 const props = defineProps({
@@ -20,10 +25,28 @@ const props = defineProps({
     products: Object,
     filters: Object,
     categories: Object,
+    workProducts: Object,
 });
 
 const cutText = (text, length) => {
     return text.length > length ? text.substring(0, length) + '...' : text;
+};
+const Deleteform = useForm({
+    product: '',
+});
+
+// Fonction pour soumettre le formulaire et supprimer le produit
+const deleteProduct = () => {
+
+    Deleteform.delete(route('work.product.detach', { work:props.work, product: Deleteform.product }), {
+        onSuccess: () => {
+            console.log('Product has been deleted successfully!');
+            closeModal();
+        },
+        onError: (errors) => {
+            console.error('Validation errors:', errors);
+        }
+    });
 };
 
 const form = useForm({
@@ -106,9 +129,14 @@ const applyFilter = (status) => {
     }
     autoFilter();
 };
-const findCategory = (categoryId) => {
-    const category = props.categories.find((category) => category.id === categoryId);
+const findCategory = (category_id) => {
+    const category = props.categories.find((category) => category.id === category_id);
     return category.name;
+}
+
+const findQuantity = (product_id) => {
+    const product = props.workProducts.find((product) => product.id === product_id);
+    return product.pivot.quantity_used;
 }
 
 </script>
@@ -149,6 +177,11 @@ const findCategory = (categoryId) => {
                                             </th>
 
                                             <th scope="col"
+                                                class="px-12 py-2.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                                                Quantity Used
+                                            </th>
+
+                                            <th scope="col"
                                                 class="px-4 py-2.5 text-sm font-normal text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                                 Description
                                             </th>
@@ -179,6 +212,11 @@ const findCategory = (categoryId) => {
                                                     {{ product.stock }}
                                                 </div>
                                             </td>
+                                            <td class="px-12 py-2 text-sm font-medium whitespace-nowrap">
+                                                <p class="text-gray-500 dark:text-gray-400">
+                                                    {{ findQuantity(product.id) }}
+                                                </p>
+                                            </td>
                                             <td class="px-4 py-2 text-sm whitespace-nowrap">
                                                 <div>
                                                     <p class="text-gray-500 dark:text-gray-400">{{
@@ -188,7 +226,7 @@ const findCategory = (categoryId) => {
                                             </td>
 
                                             <td class="px-4 py-2 text-sm whitespace-nowrap">
-                                                <button @click="handleDelete"
+                                                <button @click="handleDelete(product)"
                                                     class="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-red-500 hover:bg-red-500/10 rounded-lg">
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                         fill="currentColor" class="h-4 w-4">
@@ -199,7 +237,34 @@ const findCategory = (categoryId) => {
                                                 </button>
                                             </td>
                                         </tr>
+                                        <Modal :show="IsOpenProductDeleteModal" @close="closeModal">
+                                            <div class="p-6">
+                                                <h2 class="text-lg font-medium text-gray-900">
+                                                    Are you sure you want to delete this product?
+                                                </h2>
 
+                                                <p class="mt-1 text-sm text-gray-600">
+                                                    Once your product is deleted, all of its resources and data
+                                                    will be permanently deleted. This action cannot be undone.
+                                                </p>
+
+                                                <!-- Erreur d'entrée si nécessaire -->
+                                                <InputError :message="Deleteform.errors.productId" class="mt-4" />
+
+                                                <div class="mt-6 flex justify-end">
+                                                    <!-- Bouton d'annulation -->
+                                                    <SecondaryButton @click="closeModal">
+                                                        Cancel
+                                                    </SecondaryButton>
+
+                                                    <!-- Bouton de suppression -->
+                                                    <DangerButton class="ms-3" :disabled="Deleteform.processing"
+                                                        @click="deleteProduct">
+                                                        Delete Product
+                                                    </DangerButton>
+                                                </div>
+                                            </div>
+                                        </Modal>
                                     </tbody>
                                 </table>
                             </div>
@@ -290,5 +355,7 @@ const findCategory = (categoryId) => {
                 </div>
             </section>
         </div>
+
+
     </AuthenticatedLayout>
 </template>

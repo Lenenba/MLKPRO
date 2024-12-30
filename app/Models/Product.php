@@ -140,6 +140,20 @@ class Product extends Model
     }
 
     /**
+     * Scope a query to filter products by a specific work.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $workId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForWork(Builder $query, int $workId): Builder
+    {
+        return $query->whereHas('works', function (Builder $q) use ($workId) {
+            $q->where('work_id', $workId);
+        });
+    }
+
+    /**
      * Apply stock range filter.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
