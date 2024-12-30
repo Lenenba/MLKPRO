@@ -77,6 +77,7 @@ class CustomerController extends Controller
         // Fetch works for the retrieved customers
         $works = Work::with(['products', 'ratings', 'customer'])
             ->byCustomer($customer->id)
+            ->byUser(Auth::user()->id)
             ->filter($filters)
             ->latest()
             ->paginate(10) // Paginer avec 10 résultats par page

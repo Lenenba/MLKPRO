@@ -52,7 +52,7 @@ class Customer extends Model
      */
     public function works(): HasMany
     {
-        return $this->hasMany(Work::class);
+        return $this->hasMany(Work::class, 'customer_id');
     }
     /**
      * Scope a query to only include customers of a given user.

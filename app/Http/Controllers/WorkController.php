@@ -2,18 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\Work;
+use App\Models\Product;
+use App\Models\Customer;
 use App\Models\ProductWork;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\In;
+use App\Models\ProductCategory;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class WorkController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the works.
      */
-    public function index(Request $request)
+    public function index()
     {
         $works = Work::with(['customer', 'products', 'ratings'])
             ->orderBy('work_date', 'desc')
@@ -25,44 +29,10 @@ class WorkController extends Controller
     /**
      * Show the form for creating a new work.
      */
-    public function create(Int $customerId = null)
+    public function create(Int $customer_id = null)
     {
-        $customer = Customer::with('works')->findOrFail($customerId);
+        $customer = Customer::with('works')->findOrFail($customer_id);
         return inertia('Work/Create', ['customer' => $customer]);
-    }
-
-    /**
-     * Store a newly created work in storage.
-     */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'customer_id' => 'required|exists:customers,id',
-            'description' => 'required|string',
-            'work_date' => 'required|date',
-            'time_spent' => 'nullable|integer|min:0',
-            'cost' => 'nullable|numeric|min:0',
-            'location' => 'nullable|string',
-            'products' => 'array',
-            'products.*.product_id' => 'required_with:products|exists:products,id',
-            'products.*.quantity_used' => 'required_with:products|integer|min:1',
-        ]);
-
-        $work = Work::create($validated);
-
-        // Attach products if provided
-        if ($request->has('products')) {
-            foreach ($validated['products'] as $product) {
-                ProductWork::create([
-                    'work_id' => $work->id,
-                    'product_id' => $product['product_id'],
-                    'quantity_used' => $product['quantity_used'],
-                ]);
-            }
-        }
-
-        return response()->json(['message' => 'Work created successfully', 'work' => $work], 201);
     }
 
     /**
@@ -72,7 +42,62 @@ class WorkController extends Controller
     {
         $work = Work::with(['customer', 'products', 'ratings'])->findOrFail($id);
 
+        $this->authorize('view', $work);
         return inertia('Work/Index', ['work' => $work]);
+    }
+
+    /**
+     * Store a newly created work in storage.
+     */
+    public function store(Request $request)
+    {
+
+        $validated = $request->validate([
+            'customer_id' => 'required|exists:customers,id',
+            'type' => 'required|string',
+            'description' => 'required|string',
+            'work_date' => 'required|date',
+            'time_spent' => 'nullable|integer|min:0',
+            'cost' => 'nullable|numeric|min:0',
+            'location' => 'nullable|string',
+        ]);
+
+        $customer = Customer::with(['works'])->findOrFail($validated['customer_id']);
+        $validated['user_id'] = Auth::user()->id;
+        $work =  $customer->works()->create($validated);
+
+        return redirect()->route('work.edit',  [
+            'work_id' => $work->id,
+            'work' => $work,
+            'customer' => $customer
+        ])->with('success', 'Work created successfully.');
+    }
+
+    public function edit(int $work_id, ?Request $request)
+    {
+        $work = Work::with(['customer', 'products', 'ratings'])->findOrFail($work_id);
+        $this->authorize('edit', $work);
+        $filters = $request->only([
+            'category_id',
+            'name',
+            'stock'
+        ]);
+        $products = Product::mostRecent()
+        ->filter($filters)
+        ->with(['category'])
+        ->simplePaginate(4)
+        ->withQueryString();
+        $categories = ProductCategory::all();
+        $customer = $work->customer->load('works');
+
+
+        return inertia('Work/Edit', [
+            'work' => $work,
+            'customer' => $customer,
+            'filters' => $filters,
+            'products' => $products,
+            'categories' => $categories,
+        ]);
     }
 
     /**
