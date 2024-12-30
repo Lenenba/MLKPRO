@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\Work;
 use Inertia\Inertia;
 use App\Models\Customer;
 use App\Utils\FileHandler;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\CustomerRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -16,15 +20,73 @@ class CustomerController extends Controller
      *
      * @return \Inertia\Response
      */
-    public function index()
+    public function index(?Request $request)
     {
+        $filters = $request->only([
+            'name',
+            'company_name'
+        ]);
+        $userId = Auth::user()->id;
+
         // Fetch customers with pagination
         $customers = Customer::mostRecent()
-            ->simplePaginate(3);
+            ->with(['works' => function ($query) use ($userId) {
+                $query->where('user_id', $userId)->with('products');
+            }])
+            ->filter($filters)
+            ->byUser($userId)
+            ->simplePaginate(3)
+            ->withQueryString();
 
         // Pass data to Inertia view
         return Inertia::render('Customer/Index', [
-            'customers' => $customers
+            'customers' => $customers,
+            'filters' => $filters,
+        ]);
+    }
+
+    /**
+     * Show the form for creating a new customer.
+     *
+     * @return \Inertia\Response
+     */
+    public function create()
+    {
+        return Inertia::render('Customer/Create', [
+            'customer' => new Customer(),
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified customer.
+     *
+     * @param  \App\Models\Customer  $customer
+     * @return \Inertia\Response
+     */
+    public function show(Customer $customer, ?Request $request)
+    {
+        $this->authorize('view', $customer);
+
+        // Valider les filtres uniquement si la requête contient des données
+        $filters = $request->only([
+            'name',
+            'status',
+            'month',
+        ]);
+
+        // Fetch works for the retrieved customers
+        $works = Work::with(['products', 'ratings', 'customer'])
+            ->byCustomer($customer->id)
+            ->byUser(Auth::user()->id)
+            ->filter($filters)
+            ->latest()
+            ->paginate(10) // Paginer avec 10 résultats par page
+            ->withQueryString(); // Conserver les paramètres de requête dans l'URL
+
+        return Inertia::render('Customer/Show', [
+            'customer' => $customer,
+            'works' => $works,
+            'filters' => $filters,
         ]);
     }
 
@@ -81,5 +143,4 @@ class CustomerController extends Controller
 
         return redirect()->route('customer.index')->with('success', 'customer deleted successfully.');
     }
-
 }

@@ -12,6 +12,14 @@ defineProps({
     customer: {
         type: Object,
         required: true
+    },
+    works: {
+        type: Object,
+        required: true
+    },
+    filters: {
+        type: Object,
+        required: true
     }
 });
 

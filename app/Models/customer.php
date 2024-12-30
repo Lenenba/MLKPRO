@@ -52,7 +52,7 @@ class Customer extends Model
      */
     public function works(): HasMany
     {
-        return $this->hasMany(Work::class);
+        return $this->hasMany(Work::class, 'customer_id');
     }
     /**
      * Scope a query to only include customers of a given user.
@@ -102,5 +102,23 @@ class Customer extends Model
     public function getTotalWorks(): int
     {
         return $this->works()->count();
+    }
+
+    /**
+     * Scope a query to filter products based on given criteria.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query->when(
+            $filters['company_name'] ?? null,
+            fn($query, $company_name) => $query->where('company_name', 'like', '%' . $company_name . '%')
+        )->when(
+            $filters['name'] ?? null,
+            fn($query, $name) => $query->where('name', 'like', '%' . $name . '%')
+        );
     }
 }

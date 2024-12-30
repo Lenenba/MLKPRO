@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Worker
             $table->foreignIdFor(Customer::class, 'customer_id')->constrained('customers')->onDelete('cascade'); // Client customer
             $table->text('description'); // Description of the work
+            $table->text('type'); // type of the work
             $table->datetime('work_date'); // Date and time of the work
             $table->integer('time_spent')->default(0); // Time spent in minutes
             $table->boolean('is_completed')->default(false); // Status of work completion
@@ -60,7 +61,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('worker_ratings');
-        Schema::dropIfExists('product_work');
+        Schema::dropIfExists('product_works');
         Schema::dropIfExists('works');
     }
 };

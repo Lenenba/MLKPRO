@@ -1,6 +1,5 @@
 <script setup>
-import { defineEmits } from 'vue';
-import { useForm, router } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import SelectInput from '@/Components/SelectInput.vue';
@@ -47,7 +46,7 @@ const NewProduct = () => {
 
 <template>
     <form @submit.prevent="autoFilter">
-        <div class="p-6 bg-white border border-gray-200 rounded-lg max-w-6xl mx-auto">
+        <div class="p-6 bg-white border border-gray-200 rounded-lg mx-auto">
             <!-- Header -->
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-bold text-gray-800">Product Search</h2>

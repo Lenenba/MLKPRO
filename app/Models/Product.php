@@ -64,7 +64,7 @@ class Product extends Model
      */
     public function works(): BelongsToMany
     {
-        return $this->belongsToMany(Work::class, 'product_work')->withPivot('quantity_used', 'unit');
+        return $this->belongsToMany(Work::class, 'product_works')->withPivot('quantity_used', 'unit');
     }
 
     /**
@@ -137,6 +137,20 @@ class Product extends Model
     public function scopeInStock($query)
     {
         return $query->where('stock', '>', 0);
+    }
+
+    /**
+     * Scope a query to filter products by a specific work.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $workId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeForWork(Builder $query, int $workId): Builder
+    {
+        return $query->whereHas('works', function (Builder $q) use ($workId) {
+            $q->where('work_id', $workId);
+        });
     }
 
     /**

@@ -15,7 +15,7 @@ class Work extends Model
     use HasFactory;
 
 
-    protected $fillable = ['user_id', 'company_id', 'description', 'work_date', 'time_spent', 'is_completed', 'cost', 'location'];
+    protected $fillable = ['user_id', 'company_id', 'description', 'type', 'work_date', 'time_spent', 'is_completed', 'cost', 'location'];
 
     /**
      * Get the user that owns the work.
@@ -30,7 +30,7 @@ class Work extends Model
      */
     public function customer(): BelongsTo
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     /**
@@ -38,7 +38,7 @@ class Work extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class, 'product_work')->withPivot('quantity_used', 'unit');
+        return $this->belongsToMany(Product::class, 'product_works')->withPivot('quantity_used', 'unit');
     }
 
     /**
@@ -61,14 +61,44 @@ class Work extends Model
     }
 
     /**
+     * Scope a query to only include customers of a given user.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $userId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByUser($query, int $userId)
+    {
+        return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Scope a query to filter by one or more customer IDs.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array|int $customerIds
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByCustomer($query, $customerIds)
+    {
+        // Vérifier si un seul ID est passé et le convertir en tableau
+        if (!is_array($customerIds)) {
+            $customerIds = [$customerIds];
+        }
+
+        return $query->whereIn('customer_id', $customerIds);
+    }
+
+
+    /**
      * Scope a query to order products by the most recent.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeByCustomer($query, $customerId)
+    public function scopeMostRecent(Builder $query): Builder
     {
-        return $query->where('customer_id', $customerId);
+        return $query->orderByDesc('created_at');
     }
 
     /**
@@ -100,5 +130,26 @@ class Work extends Model
     public function getFormattedDate(): string
     {
         return $this->work_date->format('d M Y, H:i');
+    }
+
+    /**
+     * Scope a query to filter products based on given criteria.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeFilter(Builder $query, array $filters): Builder
+    {
+        return $query->when(
+            $filters['name'] ?? null,
+            fn($query, $name) => $query->where('type', 'like', '%' . $name . '%')
+        )->when(
+            $filters['status'] ?? null,
+            fn($query, $status) => $query->where('is_completed', $status  )
+        )->when(
+            $filters['month'] ?? null,
+            fn($query, $month) => $query->whereMonth('work_date', $month))
+        ;
     }
 }
